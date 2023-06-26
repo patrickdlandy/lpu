@@ -17,3 +17,11 @@ https://stackoverflow.com/questions/21012580/is-it-possible-to-write-data-to-fil
 
 It looks like it is possible to read local files, generate a file, and allow the user to download it. This sounds useful for the root m3u functionality but not for anything else. Maybe I will try this first, maybe attempt a node solution for the other features.
 
+Right away it looks like a web browser is not going to be an optimal solution. For security reasons, a folder cannot be chosen when selecting a file so that the web browser can't access the user's filesystem.
+
+Looks like I will need node.js or a back end language. Probably want to go with Node.js.
+
+https://www.youtube.com/watch?v=MJ3DQa7utFA
+https://tutorialedge.net/nodejs/reading-writing-files-with-nodejs/
+
+
