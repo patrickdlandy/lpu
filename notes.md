@@ -24,4 +24,9 @@ Looks like I will need node.js or a back end language. Probably want to go with 
 https://www.youtube.com/watch?v=MJ3DQa7utFA
 https://tutorialedge.net/nodejs/reading-writing-files-with-nodejs/
 
+Additional links:
+
+https://youtu.be/GMf30xyRv9M
+
+
 
