@@ -19,7 +19,7 @@ function folderList() {
 function writeLine(filePath, filename) {
     fs.appendFile(filename, filePath + "\n", function(err) {
         if (err) throw err;
-        console.log(`Wrote ${filePath} to ${filename}`)
+        //console.log(`Wrote ${filePath} to ${filename}`)
     });
 }
 
@@ -28,14 +28,17 @@ function writeLine(filePath, filename) {
 
 function scanFolder(filePath) {
     const files = fs.readdirSync(filePath);
+    if (!fs.existsSync("00_playlists")){
+        fs.mkdirSync("00_playlists");
+    }
     files.forEach(item => {
-        if (fs.lstatSync(path.resolve(filePath, item)).isDirectory()) {
-            console.log(`directory: ${item}`);
-            scanFolder(path.resolve(filePath, item));
-        } else if (fs.lstatSync(path.resolve(filePath, item)).isFile()) {
-            console.log(`file: ${item}`);
+        if (fs.lstatSync(filePath + "/" + item).isDirectory()) {
+            //console.log(`directory: ${item}`);
+            scanFolder(filePath + "/" + item);
+        } else if (fs.lstatSync(filePath + "/" + item).isFile()) {
+            //console.log(`file: ${item}`);
             if (musicextensions.includes(path.extname(item))) {
-                writeLine(path.resolve(filePath, item),"main.m3u8");
+                writeLine("../" + filePath + "/" + item, "00_playlists/main.m3u8");
             }
         }
     });
