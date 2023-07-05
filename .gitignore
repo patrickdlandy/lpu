@@ -13,5 +13,5 @@
 
 *.m3u8
 
-node-modules/
+node_modules/
 
