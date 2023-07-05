@@ -1,5 +1,12 @@
-const fs = require("fs");
-const path = require("path");
+import { parseFile } from 'music-metadata';
+import { inspect } from 'util';
+import * as fs from 'fs';
+import * as path from 'path';
+
+// const fs = require("fs");
+// const path = require("path");
+// const musicMetadata = require("music-metadata");
+// const util = require("util");
 
 const musicextensions = [".mp3", ".flac", ".m4a", ".wav"];
 
@@ -25,6 +32,16 @@ function writeLine(filePath, filename) {
 
 //writeLine("/home/patrick/Code/lpu/Steely Dan- Do It Again.mp3","test.m3u8");
 
+function readTags(filePath) {
+    (async () => {
+        try {
+          const metadata = await musicMetadata.parseFile(filePath);
+          console.log(util.inspect(metadata, { showHidden: false, depth: null }));
+        } catch (error) {
+          console.error(error.message);
+        }
+      })();
+};
 
 function scanFolder(filePath) {
     const files = fs.readdirSync(filePath);
@@ -40,9 +57,21 @@ function scanFolder(filePath) {
             if (musicextensions.includes(path.extname(item))) {
                 writeLine("../" + filePath + "/" + item, "00_playlists/main.m3u8");
             }
+            readTags(filePath + "/" + item);
         }
     });
 }
+
+function readtags(filePath) {
+    (async () => {
+        try {
+          const metadata = await parseFile(filePath);
+          console.log(inspect(metadata, { showHidden: false, depth: null }));
+        } catch (error) {
+          console.error(error.message);
+        }
+      })();
+};
 
 scanFolder(".");
 

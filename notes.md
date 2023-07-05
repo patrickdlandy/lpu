@@ -28,5 +28,11 @@ Additional links:
 
 https://youtu.be/GMf30xyRv9M
 
+Got root playlist functionality working!
+
+Music metadata library (recent): music-metadata
+
+https://www.npmjs.com/package/music-metadata
 
 
+Having a module issue. Need to figure out how to use require vs import in order to access the music-metadata library in my code. Not working atm.

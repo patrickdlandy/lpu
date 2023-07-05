@@ -1,0 +1,23 @@
+{
+  "name": "lpu",
+  "version": "0.0.1",
+  "description": "Local playlist utility for automatically generating .m3u8 playlists for digital music libraries.",
+  "main": "lpu.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/patrickdlandy/lpu.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/patrickdlandy/lpu/issues"
+  },
+  "homepage": "https://github.com/patrickdlandy/lpu#readme",
+  "dependencies": {
+    "musicmetadata": "^2.0.5"
+  }
+}
