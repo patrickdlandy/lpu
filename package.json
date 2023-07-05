@@ -18,6 +18,6 @@
   },
   "homepage": "https://github.com/patrickdlandy/lpu#readme",
   "dependencies": {
-    "musicmetadata": "^2.0.5"
+    "music-metadata": "^8.1.4"
   }
 }

@@ -35,8 +35,8 @@ function writeLine(filePath, filename) {
 function readTags(filePath) {
     (async () => {
         try {
-          const metadata = await musicMetadata.parseFile(filePath);
-          console.log(util.inspect(metadata, { showHidden: false, depth: null }));
+          const metadata = await parseFile(filePath);
+          console.log(inspect(metadata, { showHidden: false, depth: null }));
         } catch (error) {
           console.error(error.message);
         }
