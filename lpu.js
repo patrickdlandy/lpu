@@ -25,6 +25,29 @@ function folderList() {
     });
 }
 
+function clearFolder(folderName) {
+    fs.rmSync(folderName, { recursive: true, force: true });
+}
+
+function sortPlaylists(filePath) {
+    //sorts all .m3u8 playlist files in filePath
+    const files = fs.readdirSync(filePath);
+    files.forEach(item => {
+        if (fs.lstatSync(filePath + "/" + item).isDirectory()) {
+            //console.log(`directory: ${item}`);
+            sortPlaylists(filePath + "/" + item);
+        } else if (fs.lstatSync(filePath + "/" + item).isFile()) {
+            //console.log(`file: ${item}`);
+            if (path.extname(filePath + "/" + item) === ".m3u8") {
+                console.log(`sorting ${item}`);
+                const lines = fs.readFileSync(filePath + "/" + item, 'utf-8').split('\n');// Sort the array
+                lines.sort();// Write the sorted array back to the file
+                fs.writeFileSync(filePath + "/" + item, lines.join('\n'));
+            }
+        }
+    });
+}
+
 //folderList();
 
 function writeLine(filePath, filename) {
@@ -39,32 +62,44 @@ function writeLine(filePath, filename) {
 function readTags(filePath) {
     (async () => {
         try {
-          const metadata = await parseFile(filePath);
-          //process common tags
-          //let common = inspect(metadata.common, { showHidden: false, depth: null });
+            const metadata = await parseFile(filePath);
+            //process common tags
+            //let common = inspect(metadata.common, { showHidden: false, depth: null });
 
-          //albumartist
-          if (metadata.common) {
-            let common = metadata.common;
-            let currentTag = "albumartist";
-            //console.log(common["albumartist"]);
-            if (common[currentTag]) {
-                writeCommonTagLine(common, currentTag, filePath);
+            //albumartist
+            if (metadata.common) {
+                let common = metadata.common;
+                commontags.forEach(function(currentTag) {
+                    //console.log(common["albumartist"]);
+                    let tagData = common[currentTag];
+                    if (tagData) {
+                        if (typeof tagData === "object") {
+                            tagData.forEach(function(val) {
+                                val = val.replace(/[^a-z0-9]/gi, '_');
+                                writeCommonTagLine(val, currentTag, filePath);
+                            })
+                        } else if (typeof tagData === "string") {
+                            tagData = tagData.replace(/[^a-z0-9]/gi, '_');
+                            writeCommonTagLine(tagData, currentTag, filePath);
+                        }
+                    }
+                });
+
             }
             
-          }
-          
         } catch (error) {
           console.error(error.message);
+          return null;
         }
-      })();
-};
+    })();
+}
 
-function writeCommonTagLine(common, currentTag, filePath) {
+function writeCommonTagLine(value, currentTag, filePath) {
+    value.replace(/[^a-z0-9]/gi, '_');
     if (!fs.existsSync(`00_playlists/${currentTag}-common`)){
         fs.mkdirSync(`00_playlists/${currentTag}-common`);
     }
-    writeLine("../../" + filePath, `00_playlists/${[currentTag]}-common/${common[currentTag]}.m3u8`);
+    writeLine("../../" + filePath, `00_playlists/${[currentTag]}-common/${value}.m3u8`);
 }
 
 function scanFolder(filePath) {
@@ -86,5 +121,13 @@ function scanFolder(filePath) {
     });
 }
 
-scanFolder(".");
+clearFolder("00_playlists");
+setTimeout(() => {
+        scanFolder(".")
+    }, 5000);
+setTimeout(() => {
+        sortPlaylists(".")
+    }, 10000);
+
+
 
