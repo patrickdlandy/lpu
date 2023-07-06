@@ -12,7 +12,9 @@ import * as path from 'path';
 
 const musicextensions = [".mp3", ".flac", ".m4a", ".wav"];
 
-const commontags = ["albumartist", "genre"];
+const commontags = ["albumartist", "genre", "date"];
+
+const vorbistags = ["SOURCE COLLECTION", "STYLE", "PLAYLIST"];
 
 
 function folderList() {
@@ -93,12 +95,12 @@ function readTags(filePath) {
     })();
 }
 
-function writeCommonTagLine(value, currentTag, filePath) {
+function writeTagLine(value, currentTag, filePath, tagType) {
     value.replace(/[^a-z0-9]/gi, '_');
-    if (!fs.existsSync(`00_playlists/${currentTag}-common`)){
-        fs.mkdirSync(`00_playlists/${currentTag}-common`);
+    if (!fs.existsSync(`00_playlists/${currentTag}-${tagType}`)){
+        fs.mkdirSync(`00_playlists/${currentTag}-${tagType}`);
     }
-    writeLine("../../" + filePath, `00_playlists/${[currentTag]}-common/${value}.m3u8`);
+    writeLine("../../" + filePath, `00_playlists/${[currentTag]}-${tagType}/${value}.m3u8`);
 }
 
 async function scanFolder(filePath) {
@@ -134,11 +136,11 @@ async function scanFolder(filePath) {
                                     if (typeof tagData === "object") {
                                         tagData.forEach(function(val) {
                                             val = val.replace(/[^a-z0-9]/gi, '_');
-                                            writeCommonTagLine(val, currentTag, filePath + "/" + files[index]);
+                                            writeTagLine(val, currentTag, filePath + "/" + files[index], "common");
                                         })
                                     } else if (typeof tagData === "string") {
                                         tagData = tagData.replace(/[^a-z0-9]/gi, '_');
-                                        writeCommonTagLine(tagData, currentTag, filePath + "/" + files[index]);
+                                        writeTagLine(tagData, currentTag, filePath + "/" + files[index], "common");
                                     }
                                 }
                             });
@@ -209,16 +211,29 @@ Promise.all(metadataPromises).then((val) => {
                     if (typeof tagData === "object") {
                         tagData.forEach(function(val) {
                             val = val.replace(/[^a-z0-9]/gi, '_');
-                            writeCommonTagLine(val, currentTag, filePaths[index]);
+                            writeTagLine(val, currentTag, filePaths[index], "common");
                         })
                     } else if (typeof tagData === "string") {
                         tagData = tagData.replace(/[^a-z0-9]/gi, '_');
-                        writeCommonTagLine(tagData, currentTag, filePaths[index]);
+                        writeTagLine(tagData, currentTag, filePaths[index], "common");
                     }
                 }
             });
-
         }
+        //vorbis tags
+        if (val[index].native && val[index].native.vorbis) {
+            let vorbis = val[index].native.vorbis;
+            if (vorbis.length > 0) {
+                vorbis.forEach(function(tag) {
+                    if (vorbistags.includes(tag.id)) {
+                        // console.log(tag.id + " " + tag.value);
+                        // console.log(vorbis);
+                        writeTagLine(tag.value, tag.id, filePaths[index], "vorbis");
+                    }
+                });
+            }
+        }
+
     }
 });
 
