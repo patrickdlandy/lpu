@@ -8,7 +8,11 @@ import * as path from 'path';
 // const musicMetadata = require("music-metadata");
 // const util = require("util");
 
+//consts (refactor to config/defaults later)
+
 const musicextensions = [".mp3", ".flac", ".m4a", ".wav"];
+
+const commontags = ["albumartist", "genre"];
 
 
 function folderList() {
@@ -36,12 +40,32 @@ function readTags(filePath) {
     (async () => {
         try {
           const metadata = await parseFile(filePath);
-          console.log(inspect(metadata, { showHidden: false, depth: null }));
+          //process common tags
+          //let common = inspect(metadata.common, { showHidden: false, depth: null });
+
+          //albumartist
+          if (metadata.common) {
+            let common = metadata.common;
+            let currentTag = "albumartist";
+            //console.log(common["albumartist"]);
+            if (common[currentTag]) {
+                writeCommonTagLine(common, currentTag, filePath);
+            }
+            
+          }
+          
         } catch (error) {
           console.error(error.message);
         }
       })();
 };
+
+function writeCommonTagLine(common, currentTag, filePath) {
+    if (!fs.existsSync(`00_playlists/${currentTag}-common`)){
+        fs.mkdirSync(`00_playlists/${currentTag}-common`);
+    }
+    writeLine("../../" + filePath, `00_playlists/${[currentTag]}-common/${common[currentTag]}.m3u8`);
+}
 
 function scanFolder(filePath) {
     const files = fs.readdirSync(filePath);
@@ -56,22 +80,11 @@ function scanFolder(filePath) {
             //console.log(`file: ${item}`);
             if (musicextensions.includes(path.extname(item))) {
                 writeLine("../" + filePath + "/" + item, "00_playlists/main.m3u8");
+                readTags(filePath + "/" + item);
             }
-            readTags(filePath + "/" + item);
         }
     });
 }
-
-function readtags(filePath) {
-    (async () => {
-        try {
-          const metadata = await parseFile(filePath);
-          console.log(inspect(metadata, { showHidden: false, depth: null }));
-        } catch (error) {
-          console.error(error.message);
-        }
-      })();
-};
 
 scanFolder(".");
 

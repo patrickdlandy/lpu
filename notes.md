@@ -36,3 +36,106 @@ https://www.npmjs.com/package/music-metadata
 
 
 Having a module issue. Need to figure out how to use require vs import in order to access the music-metadata library in my code. Not working atm.
+
+Got it working. Needed to make it a module and use the correct library, music-metadata, not musicmetadata.
+
+Here is the structure of what is returned from parseFile:
+
+```json
+{
+  format: {
+    tagTypes: [ 'vorbis' ],
+    trackInfo: [],
+    container: 'FLAC',
+    codec: 'FLAC',
+    lossless: true,
+    numberOfChannels: 2,
+    bitsPerSample: 16,
+    sampleRate: 44100,
+    duration: 294.4,
+    bitrate: 919656.6576086957
+  },
+  native: {
+    vorbis: [
+      { id: 'ARTIST', value: '2Pac' },
+      { id: 'TITLE', value: "I Ain't Mad At Cha" },
+      { id: 'ALBUM', value: 'Greatest Hits' },
+      { id: 'DATE', value: '1998' },
+      { id: 'GENRE', value: 'Rap' },
+      { id: 'GENRE', value: 'Hip Hop' },
+      { id: 'ALBUMARTIST', value: '2Pac' },
+      { id: 'TRACKNUMBER', value: '3' },
+      { id: 'TRACKTOTAL', value: '13' },
+      { id: 'DISCNUMBER', value: '2' },
+      { id: 'COMMENT', value: ' YEAR: 1998' },
+      { id: 'SOURCE COLLECTION', value: '100' },
+      { id: 'REPLAYGAIN_ALBUM_GAIN', value: '-8.54 dB' },
+      { id: 'REPLAYGAIN_ALBUM_PEAK', value: '0.999969' },
+      { id: 'REPLAYGAIN_TRACK_GAIN', value: '-8.70 dB' },
+      { id: 'REPLAYGAIN_TRACK_PEAK', value: '0.999969' },
+      {
+        id: 'METADATA_BLOCK_PICTURE',
+        value: {
+          type: 'Cover (front)',
+          format: 'image/jpeg',
+          description: '',
+          width: 1413,
+          height: 1389,
+          colour_depth: 24,
+          indexed_color: 0,
+          data: <Buffer ff d8 ff e0 00 10 4a 46 49 46 00 01 01 00 00 01 00 01 00 00 ff fe 00 3e 43 52 45 41 54 4f 52 3a 20 67 64 2d 6a 70 65 67 20 76 31 2e 30 20 28 75 73 69 ... 120761 more bytes>
+        }
+      }
+    ]
+  },
+  quality: { warnings: [] },
+  common: {
+    track: { no: 3, of: 13 },
+    disk: { no: 2, of: null },
+    movementIndex: {},
+    artists: [ '2Pac' ],
+    artist: '2Pac',
+    title: "I Ain't Mad At Cha",
+    album: 'Greatest Hits',
+    year: 1998,
+    date: '1998',
+    genre: [ 'Rap', 'Hip Hop' ],
+    albumartist: '2Pac',
+    comment: [ ' YEAR: 1998' ],
+    replaygain_album_gain: { dB: -8.54, ratio: 0.13995873225726185 },
+    replaygain_album_peak: { dB: -0.0001346333762181356, ratio: 0.999969 },
+    replaygain_track_gain: { dB: -8.7, ratio: 0.1348962882591654 },
+    replaygain_track_peak: { dB: -0.0001346333762181356, ratio: 0.999969 },
+    picture: [
+      {
+        type: 'Cover (front)',
+        format: 'image/jpeg',
+        description: '',
+        width: 1413,
+        height: 1389,
+        colour_depth: 24,
+        indexed_color: 0,
+        data: <Buffer ff d8 ff e0 00 10 4a 46 49 46 00 01 01 00 00 01 00 01 00 00 ff fe 00 3e 43 52 45 41 54 4f 52 3a 20 67 64 2d 6a 70 65 67 20 76 31 2e 30 20 28 75 73 69 ... 120761 more bytes>
+      }
+    ]
+  }
+}
+
+
+```
+
+Looks like there are 4 main keys:
+- format 
+- native
+- quality
+- common
+
+Looks like the default tags are in common and the ones added by Discogs are in native.vorbis
+
+I'd like to start with using these tags from common:
+- albumartist
+- genre
+
+I'd like to start with using these tags from vorbis:
+- 'SOURCE COLLECTION'
+
