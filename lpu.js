@@ -89,7 +89,6 @@ function readTags(filePath) {
             
         } catch (error) {
           console.error(error.message);
-          return null;
         }
     })();
 }
@@ -102,32 +101,124 @@ function writeCommonTagLine(value, currentTag, filePath) {
     writeLine("../../" + filePath, `00_playlists/${[currentTag]}-common/${value}.m3u8`);
 }
 
-function scanFolder(filePath) {
+async function scanFolder(filePath) {
+    // console.log("Scanning folders");
     const files = fs.readdirSync(filePath);
+    console.log(files);
     if (!fs.existsSync("00_playlists")){
         fs.mkdirSync("00_playlists");
     }
-    files.forEach(item => {
-        if (fs.lstatSync(filePath + "/" + item).isDirectory()) {
-            //console.log(`directory: ${item}`);
-            scanFolder(filePath + "/" + item);
-        } else if (fs.lstatSync(filePath + "/" + item).isFile()) {
-            //console.log(`file: ${item}`);
-            if (musicextensions.includes(path.extname(item))) {
-                writeLine("../" + filePath + "/" + item, "00_playlists/main.m3u8");
-                readTags(filePath + "/" + item);
+    
+    // create array of parseFile promises, wait for all to be resolved using promise.all, then iterate through array
+
+    //files.forEach(item => {
+    for (let index = 0; index < files.length; index++) {
+        if (fs.lstatSync(filePath + "/" + files[index]).isDirectory()) {
+            //console.log(`directory: ${files[index]}`);
+            scanFolder(filePath + "/" + files[index]);
+        } else if (fs.lstatSync(filePath + "/" + files[index]).isFile()) {
+            //console.log(`file: ${files[index]}`);
+            if (musicextensions.includes(path.extname(files[index]))) {
+                writeLine("../" + filePath + "/" + files[index], "00_playlists/main.m3u8");
+                //readTags(filePath + "/" + files[index]);
+                try {
+                    await parseFile(filePath + "/" + files[index]).then((metadata) =>{
+
+                        //albumartist
+                        if (metadata.common) {
+                            let common = metadata.common;
+                            commontags.forEach(function(currentTag) {
+                                //console.log(common["albumartist"]);
+                                let tagData = common[currentTag];
+                                if (tagData) {
+                                    if (typeof tagData === "object") {
+                                        tagData.forEach(function(val) {
+                                            val = val.replace(/[^a-z0-9]/gi, '_');
+                                            writeCommonTagLine(val, currentTag, filePath + "/" + files[index]);
+                                        })
+                                    } else if (typeof tagData === "string") {
+                                        tagData = tagData.replace(/[^a-z0-9]/gi, '_');
+                                        writeCommonTagLine(tagData, currentTag, filePath + "/" + files[index]);
+                                    }
+                                }
+                            });
+            
+                        }
+                        
+                    });
+                    //process common tags
+                    //let common = inspect(metadata.common, { showHidden: false, depth: null });
+        
+                } catch (error) {
+                  console.error(error.message);
+                }
             }
         }
-    });
+    }
+    return filePath;
 }
 
+// return an object with filepaths as keys and parseFile promises as values
+
+function buildMetadataObject(filePath) {
+    let metadataObject = {};
+    function recursiveScan(fpath) {
+        const files = fs.readdirSync(fpath);
+        //console.log(files);
+        for (let index = 0; index < files.length; index++) {
+            if (fs.lstatSync(fpath + "/" + files[index]).isDirectory()) {
+                //console.log(`directory: ${files[index]}`);
+                recursiveScan(fpath + "/" + files[index]);
+            } else if (fs.lstatSync(fpath + "/" + files[index]).isFile()) {
+                if (musicextensions.includes(path.extname(files[index]))) {
+                    metadataObject[fpath + "/" + files[index]] = parseFile(fpath + "/" + files[index]);
+                }
+            }
+        }
+    }
+    recursiveScan(filePath);
+    return metadataObject;
+}
+
+
+
+// scanFolder(".").then(sortPlaylists("."));
+
+// setTimeout(() => {
+//         sortPlaylists(".")
+//     }, 30000);
 clearFolder("00_playlists");
-setTimeout(() => {
-        scanFolder(".")
-    }, 5000);
-setTimeout(() => {
-        sortPlaylists(".")
-    }, 10000);
+if (!fs.existsSync("00_playlists")){
+    fs.mkdirSync("00_playlists");
+}
+let trackData = buildMetadataObject(".");
+let metadataPromises = Object.values(trackData);
+let filePaths = Object.keys(trackData);
+Promise.all(metadataPromises).then((val) => {
+    for (let index = 0; index < val.length; index++) {
+        // console.log(val[index]);
+        // console.log(filePaths[index]);
+        writeLine("../" + filePaths[index], "00_playlists/main.m3u8");
+        //common tags
+        if (val[index].common) {
+            let common = val[index].common;
+            commontags.forEach(function(currentTag) {
+                //console.log(common["albumartist"]);
+                let tagData = common[currentTag];
+                if (tagData) {
+                    if (typeof tagData === "object") {
+                        tagData.forEach(function(val) {
+                            val = val.replace(/[^a-z0-9]/gi, '_');
+                            writeCommonTagLine(val, currentTag, filePaths[index]);
+                        })
+                    } else if (typeof tagData === "string") {
+                        tagData = tagData.replace(/[^a-z0-9]/gi, '_');
+                        writeCommonTagLine(tagData, currentTag, filePaths[index]);
+                    }
+                }
+            });
 
-
+        }
+    }
+});
 
