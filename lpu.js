@@ -14,7 +14,9 @@ const musicextensions = [".mp3", ".flac", ".m4a", ".wav"];
 
 const commontags = ["albumartist", "genre", "date"];
 
-const vorbistags = ["SOURCE COLLECTION", "STYLE", "PLAYLIST"];
+const vorbistags = ["SOURCE COLLECTION", "STYLE", "PLAYLIST", "RATING"];
+
+const combinationvorbistags = ["RATING"];
 
 
 function folderList() {
@@ -209,13 +211,49 @@ Promise.all(metadataPromises).then((val) => {
                 let tagData = common[currentTag];
                 if (tagData) {
                     if (typeof tagData === "object") {
-                        tagData.forEach(function(val) {
-                            val = val.replace(/[^a-z0-9]/gi, '_');
-                            writeTagLine(val, currentTag, filePaths[index], "common");
+                        tagData.forEach(function(tag) {
+                            tag = tag.replace(/[^a-z0-9]/gi, '_');
+                            writeTagLine(tag, currentTag, filePaths[index], "common");
+                            //check for vorbis combination tags
+                            combinationvorbistags.forEach((tagOne)=> {
+                                //determine if this song has a value for tagOne
+                                let hasTag = false;
+                                let tagValue = null;
+                                if (val[index].native && val[index].native.vorbis) {
+                                    let vorbis = val[index].native.vorbis;
+                                    if (vorbis.length > 0) {
+                                        vorbis.forEach(function(tagTwo) {
+                                            //check to see if this song has tagOne and store value if so
+                                            if (tagTwo.id === tagOne) {
+                                                writeTagLine(`${tagTwo.value}-${tag}`, `${tagTwo.id}-${currentTag}`, filePaths[index], "combination");
+                                            }
+    
+                                        });
+                                    }
+                                }
+                            })
                         })
                     } else if (typeof tagData === "string") {
                         tagData = tagData.replace(/[^a-z0-9]/gi, '_');
                         writeTagLine(tagData, currentTag, filePaths[index], "common");
+                        //check for vorbis combination tags
+                        combinationvorbistags.forEach((tagOne)=> {
+                            //determine if this song has a value for tagOne
+                            let hasTag = false;
+                            let tagValue = null;
+                            if (val[index].native && val[index].native.vorbis) {
+                                let vorbis = val[index].native.vorbis;
+                                if (vorbis.length > 0) {
+                                    vorbis.forEach(function(tagTwo) {
+                                        //check to see if this song has tagOne and store value if so
+                                        if (tagTwo.id === tagOne) {
+                                            writeTagLine(`${tagTwo.value}-${tagData}`, `${tagTwo.id}-${currentTag}`, filePaths[index], "combination");
+                                        }
+
+                                    });
+                                }
+                            }
+                        })
                     }
                 }
             });
@@ -229,10 +267,19 @@ Promise.all(metadataPromises).then((val) => {
                         // console.log(tag.id + " " + tag.value);
                         // console.log(vorbis);
                         writeTagLine(tag.value, tag.id, filePaths[index], "vorbis");
+                        //combination tags
+                        combinationvorbistags.forEach((tagOne)=> {
+                            vorbis.forEach(function(tagTwo) {
+                                if (tagTwo.id === tagOne && tagOne != tag.id) {
+                                    writeTagLine(`${tagTwo.value}-${tag.value}`, `${tagTwo.id}-${tag.id}`, filePaths[index], "combination");
+                                }
+                            });
+                        })
                     }
                 });
             }
         }
+        
 
     }
 });
