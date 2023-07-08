@@ -18,41 +18,35 @@ const vorbistags = ["SOURCE COLLECTION", "STYLE", "PLAYLIST", "RATING"];
 
 const combinationvorbistags = ["RATING"];
 
-
-function folderList() {
-    console.log(__dirname);
-    const results = fs.readdirSync(__dirname);
-    results.forEach(item => {
-        if (fs.lstatSync(path.resolve(__dirname, item)).isDirectory()) {
-            console.log(item);
-        }
-    });
-}
-
 function clearFolder(folderName) {
     fs.rmSync(folderName, { recursive: true, force: true });
 }
 
-function sortPlaylists(filePath) {
+const sortPlaylists = function(filePath) {
     //sorts all .m3u8 playlist files in filePath
+    console.log('Sorting playlists.');
+    console.log(fs.readFileSync);
     const files = fs.readdirSync(filePath);
-    files.forEach(item => {
-        if (fs.lstatSync(filePath + "/" + item).isDirectory()) {
-            //console.log(`directory: ${item}`);
-            sortPlaylists(filePath + "/" + item);
-        } else if (fs.lstatSync(filePath + "/" + item).isFile()) {
-            //console.log(`file: ${item}`);
-            if (path.extname(filePath + "/" + item) === ".m3u8") {
-                console.log(`sorting ${item}`);
-                const lines = fs.readFileSync(filePath + "/" + item, 'utf-8').split('\n');// Sort the array
+    for (let index = 0; index < files.length; index++) {
+        if (fs.lstatSync(filePath + "/" + files[index]).isDirectory()) {
+            // console.log(`directory: ${files[index]}`);
+            // console.log(filePath + "/" + files[index]);
+            sortPlaylists(filePath + "/" + files[index]);
+        } else if (fs.lstatSync(filePath + "/" + files[index]).isFile()) {
+            //console.log(`file: ${files[index]}`);
+            if (path.extname(filePath + "/" + files[index]) === ".m3u8") {
+                console.log(`sorting ${files[index]}`);
+                console.log(filePath + "/" + files[index]);
+                let lines = fs.readFileSync(filePath + "/" + files[index], { encoding: 'utf8', flag: 'r' }).split("\n");;
+                console.log(lines);
                 lines.sort();// Write the sorted array back to the file
-                fs.writeFileSync(filePath + "/" + item, lines.join('\n'));
+                console.log(lines);
+                fs.writeFileSync(filePath + "/" + files[index], lines.join('\n'));
             }
         }
-    });
+    };
+    console.log('Done sorting playlists');
 }
-
-//folderList();
 
 function writeLine(filePath, filename) {
     fs.appendFile(filename, filePath + "\n", function(err) {
@@ -61,105 +55,12 @@ function writeLine(filePath, filename) {
     });
 }
 
-//writeLine("/home/patrick/Code/lpu/Steely Dan- Do It Again.mp3","test.m3u8");
-
-function readTags(filePath) {
-    (async () => {
-        try {
-            const metadata = await parseFile(filePath);
-            //process common tags
-            //let common = inspect(metadata.common, { showHidden: false, depth: null });
-
-            //albumartist
-            if (metadata.common) {
-                let common = metadata.common;
-                commontags.forEach(function(currentTag) {
-                    //console.log(common["albumartist"]);
-                    let tagData = common[currentTag];
-                    if (tagData) {
-                        if (typeof tagData === "object") {
-                            tagData.forEach(function(val) {
-                                val = val.replace(/[^a-z0-9]/gi, '_');
-                                writeCommonTagLine(val, currentTag, filePath);
-                            })
-                        } else if (typeof tagData === "string") {
-                            tagData = tagData.replace(/[^a-z0-9]/gi, '_');
-                            writeCommonTagLine(tagData, currentTag, filePath);
-                        }
-                    }
-                });
-
-            }
-            
-        } catch (error) {
-          console.error(error.message);
-        }
-    })();
-}
-
 function writeTagLine(value, currentTag, filePath, tagType) {
     value.replace(/[^a-z0-9]/gi, '_');
     if (!fs.existsSync(`00_playlists/${currentTag}-${tagType}`)){
         fs.mkdirSync(`00_playlists/${currentTag}-${tagType}`);
     }
     writeLine("../../" + filePath, `00_playlists/${[currentTag]}-${tagType}/${value}.m3u8`);
-}
-
-async function scanFolder(filePath) {
-    // console.log("Scanning folders");
-    const files = fs.readdirSync(filePath);
-    console.log(files);
-    if (!fs.existsSync("00_playlists")){
-        fs.mkdirSync("00_playlists");
-    }
-    
-    // create array of parseFile promises, wait for all to be resolved using promise.all, then iterate through array
-
-    //files.forEach(item => {
-    for (let index = 0; index < files.length; index++) {
-        if (fs.lstatSync(filePath + "/" + files[index]).isDirectory()) {
-            //console.log(`directory: ${files[index]}`);
-            scanFolder(filePath + "/" + files[index]);
-        } else if (fs.lstatSync(filePath + "/" + files[index]).isFile()) {
-            //console.log(`file: ${files[index]}`);
-            if (musicextensions.includes(path.extname(files[index]))) {
-                writeLine("../" + filePath + "/" + files[index], "00_playlists/main.m3u8");
-                //readTags(filePath + "/" + files[index]);
-                try {
-                    await parseFile(filePath + "/" + files[index]).then((metadata) =>{
-
-                        //albumartist
-                        if (metadata.common) {
-                            let common = metadata.common;
-                            commontags.forEach(function(currentTag) {
-                                //console.log(common["albumartist"]);
-                                let tagData = common[currentTag];
-                                if (tagData) {
-                                    if (typeof tagData === "object") {
-                                        tagData.forEach(function(val) {
-                                            val = val.replace(/[^a-z0-9]/gi, '_');
-                                            writeTagLine(val, currentTag, filePath + "/" + files[index], "common");
-                                        })
-                                    } else if (typeof tagData === "string") {
-                                        tagData = tagData.replace(/[^a-z0-9]/gi, '_');
-                                        writeTagLine(tagData, currentTag, filePath + "/" + files[index], "common");
-                                    }
-                                }
-                            });
-            
-                        }
-                        
-                    });
-                    //process common tags
-                    //let common = inspect(metadata.common, { showHidden: false, depth: null });
-        
-                } catch (error) {
-                  console.error(error.message);
-                }
-            }
-        }
-    }
-    return filePath;
 }
 
 // return an object with filepaths as keys and parseFile promises as values
@@ -184,28 +85,16 @@ function buildMetadataObject(filePath) {
     return metadataObject;
 }
 
-
-
-// scanFolder(".").then(sortPlaylists("."));
-
-// setTimeout(() => {
-//         sortPlaylists(".")
-//     }, 30000);
-clearFolder("00_playlists");
-if (!fs.existsSync("00_playlists")){
-    fs.mkdirSync("00_playlists");
-}
-let trackData = buildMetadataObject(".");
-let metadataPromises = Object.values(trackData);
-let filePaths = Object.keys(trackData);
-Promise.all(metadataPromises).then((val) => {
+const writePlaylists = function(val) {
+    //console.log(val);
     for (let index = 0; index < val.length; index++) {
         // console.log(val[index]);
         // console.log(filePaths[index]);
         writeLine("../" + filePaths[index], "00_playlists/main.m3u8");
         //common tags
-        if (val[index].common) {
-            let common = val[index].common;
+        //console.log(val[index].common);
+        if (val[index].status === 'fulfilled' && val[index].value && val[index].value.common) {
+            let common = val[index].value.common;
             commontags.forEach(function(currentTag) {
                 //console.log(common["albumartist"]);
                 let tagData = common[currentTag];
@@ -259,8 +148,8 @@ Promise.all(metadataPromises).then((val) => {
             });
         }
         //vorbis tags
-        if (val[index].native && val[index].native.vorbis) {
-            let vorbis = val[index].native.vorbis;
+        if (val[index].status === 'fulfilled' && val[index].value.native && val[index].value.native.vorbis) {
+            let vorbis = val[index].value.native.vorbis;
             if (vorbis.length > 0) {
                 vorbis.forEach(function(tag) {
                     if (vorbistags.includes(tag.id)) {
@@ -282,5 +171,26 @@ Promise.all(metadataPromises).then((val) => {
         
 
     }
-});
+    console.log('Done writing playlists.');
+    //sortPlaylists("00_playlists");
+}
+
+console.log("Clearing playlist folder.");
+clearFolder("00_playlists");
+console.log("Recreating playlist folder.");
+if (!fs.existsSync("00_playlists")){
+    fs.mkdirSync("00_playlists");
+}
+console.log("Building track list.");
+let trackData = buildMetadataObject(".");
+let metadataPromises = Object.values(trackData);
+let filePaths = Object.keys(trackData);
+console.log(`Detected ${filePaths.length} music files.`);
+console.log('Writing playlists.');
+Promise.allSettled(metadataPromises).then((val) => writePlaylists(val));
+// setTimeout(() => {
+//     sortPlaylists("00_playlists");
+// }, 10000);
+
+
 
