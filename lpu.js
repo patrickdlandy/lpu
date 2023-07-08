@@ -108,8 +108,8 @@ const writePlaylists = function(val) {
                                 //determine if this song has a value for tagOne
                                 let hasTag = false;
                                 let tagValue = null;
-                                if (val[index].native && val[index].native.vorbis) {
-                                    let vorbis = val[index].native.vorbis;
+                                if (val[index].value.native && val[index].value.native.vorbis) {
+                                    let vorbis = val[index].value.native.vorbis;
                                     if (vorbis.length > 0) {
                                         vorbis.forEach(function(tagTwo) {
                                             //check to see if this song has tagOne and store value if so
@@ -130,13 +130,19 @@ const writePlaylists = function(val) {
                             //determine if this song has a value for tagOne
                             let hasTag = false;
                             let tagValue = null;
-                            if (val[index].native && val[index].native.vorbis) {
-                                let vorbis = val[index].native.vorbis;
+                            if (val[index].value.native && val[index].value.native.vorbis) {
+                                let vorbis = val[index].value.native.vorbis;
                                 if (vorbis.length > 0) {
                                     vorbis.forEach(function(tagTwo) {
+                                        
                                         //check to see if this song has tagOne and store value if so
                                         if (tagTwo.id === tagOne) {
-                                            writeTagLine(`${tagTwo.value}-${tagData}`, `${tagTwo.id}-${currentTag}`, filePaths[index], "combination");
+                                            //clean
+                                            if (tagTwo.value) {
+                                                let cleanTag = tagTwo.value.replace(/[^a-z0-9]/gi, '_');
+                                                writeTagLine(`${cleanTag}-${tagData}`, `${tagTwo.id}-${currentTag}`, filePaths[index], "combination");
+                                            }
+                                            
                                         }
 
                                     });
@@ -155,12 +161,14 @@ const writePlaylists = function(val) {
                     if (vorbistags.includes(tag.id)) {
                         // console.log(tag.id + " " + tag.value);
                         // console.log(vorbis);
-                        writeTagLine(tag.value, tag.id, filePaths[index], "vorbis");
+                        //clean tags
+                        let cleanTag = tag.value.replace(/[^a-z0-9]/gi, '_');
+                        writeTagLine(cleanTag, tag.id, filePaths[index], "vorbis");
                         //combination tags
                         combinationvorbistags.forEach((tagOne)=> {
                             vorbis.forEach(function(tagTwo) {
                                 if (tagTwo.id === tagOne && tagOne != tag.id) {
-                                    writeTagLine(`${tagTwo.value}-${tag.value}`, `${tagTwo.id}-${tag.id}`, filePaths[index], "combination");
+                                    writeTagLine(`${tagTwo.value}-${cleanTag}`, `${tagTwo.id}-${tag.id}`, filePaths[index], "combination");
                                 }
                             });
                         })
