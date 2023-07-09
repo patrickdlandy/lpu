@@ -22,32 +22,6 @@ function clearFolder(folderName) {
     fs.rmSync(folderName, { recursive: true, force: true });
 }
 
-const sortPlaylists = function(filePath) {
-    //sorts all .m3u8 playlist files in filePath
-    console.log('Sorting playlists.');
-    console.log(fs.readFileSync);
-    const files = fs.readdirSync(filePath);
-    for (let index = 0; index < files.length; index++) {
-        if (fs.lstatSync(filePath + "/" + files[index]).isDirectory()) {
-            // console.log(`directory: ${files[index]}`);
-            // console.log(filePath + "/" + files[index]);
-            sortPlaylists(filePath + "/" + files[index]);
-        } else if (fs.lstatSync(filePath + "/" + files[index]).isFile()) {
-            //console.log(`file: ${files[index]}`);
-            if (path.extname(filePath + "/" + files[index]) === ".m3u8") {
-                console.log(`sorting ${files[index]}`);
-                console.log(filePath + "/" + files[index]);
-                let lines = fs.readFileSync(filePath + "/" + files[index], { encoding: 'utf8', flag: 'r' }).split("\n");;
-                console.log(lines);
-                lines.sort();// Write the sorted array back to the file
-                console.log(lines);
-                fs.writeFileSync(filePath + "/" + files[index], lines.join('\n'));
-            }
-        }
-    };
-    console.log('Done sorting playlists');
-}
-
 function writeLine(filePath, filename) {
     fs.appendFile(filename, filePath + "\n", function(err) {
         if (err) throw err;
@@ -180,7 +154,6 @@ const writePlaylists = function(val) {
 
     }
     console.log('Done writing playlists.');
-    //sortPlaylists("00_playlists");
 }
 
 console.log("Clearing playlist folder.");
@@ -196,9 +169,6 @@ let filePaths = Object.keys(trackData);
 console.log(`Detected ${filePaths.length} music files.`);
 console.log('Writing playlists.');
 Promise.allSettled(metadataPromises).then((val) => writePlaylists(val));
-// setTimeout(() => {
-//     sortPlaylists("00_playlists");
-// }, 10000);
 
 
 
