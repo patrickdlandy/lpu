@@ -14,9 +14,9 @@ const musicextensions = [".mp3", ".flac", ".m4a", ".wav"];
 
 const commontags = ["albumartist", "genre", "date"];
 
-const vorbistags = ["SOURCE COLLECTION", "STYLE", "PLAYLIST", "RATING"];
+const vorbistags = ["SOURCE COLLECTION", "STYLE", "PLAYLIST", "GRADE"];
 
-const combinationvorbistags = ["RATING"];
+const combinationvorbistags = ["GRADE"];
 
 function clearFolder(folderName) {
     fs.rmSync(folderName, { recursive: true, force: true });
@@ -66,7 +66,7 @@ const writePlaylists = function(val) {
         // console.log(filePaths[index]);
         writeLine("../" + filePaths[index], "00_playlists/main.m3u8");
         //common tags
-        //console.log(val[index].common);
+        //console.log(val[index].value.native);
         if (val[index].status === 'fulfilled' && val[index].value && val[index].value.common) {
             let common = val[index].value.common;
             commontags.forEach(function(currentTag) {
@@ -80,8 +80,6 @@ const writePlaylists = function(val) {
                             //check for vorbis combination tags
                             combinationvorbistags.forEach((tagOne)=> {
                                 //determine if this song has a value for tagOne
-                                let hasTag = false;
-                                let tagValue = null;
                                 if (val[index].value.native && val[index].value.native.vorbis) {
                                     let vorbis = val[index].value.native.vorbis;
                                     if (vorbis.length > 0) {
@@ -149,6 +147,63 @@ const writePlaylists = function(val) {
                     }
                 });
             }
+        }
+        //check for vorbis tags that got stored in id3?
+        if (val[index].status === 'fulfilled' && val[index].value.native) {
+            if (val[index].value.native['ID3v2.3'] || val[index].value.native['ID3v2.4']) {
+                let idthree = [];
+                if (val[index].value.native['ID3v2.3']) {
+                    idthree = val[index].value.native['ID3v2.3'];
+                } else {
+                    idthree = val[index].value.native['ID3v2.4'];
+                }
+                if (idthree.length > 0) {
+                    idthree.forEach(function(tag) {
+                        let cleanedTagID = tag.id.replace('TXXX:','');
+                        if (vorbistags.includes(cleanedTagID)) {
+                            // console.log(tag.id + " " + tag.value);
+                            // console.log(vorbis);
+                            //clean tags
+                            let cleanTag = tag.value.replace(/[^a-z0-9]/gi, '_');
+                            writeTagLine(cleanTag, cleanedTagID, filePaths[index], "vorbis");
+                            //combination tags
+                            combinationvorbistags.forEach((tagOne)=> {
+                                idthree.forEach(function(tagTwo) {
+                                    let cleanedTagTwoID = tagTwo.id.replace('TXXX:','');
+                                    //console.log("combo tag: " + tagOne + ", cleaned ID3 Tag ID: " + cleanedTagTwoID);
+                                    if (cleanedTagTwoID === tagOne && tagOne != cleanedTagID) {
+                                        //console.log("writing tag");
+                                        writeTagLine(`${tagTwo.value}-${cleanTag}`, `${cleanedTagTwoID}-${cleanedTagID}`, filePaths[index], "combination");
+                                        //common tags
+                                        if (val[index].value.common) {
+                                            let common = val[index].value.common;
+                                            commontags.forEach(function(currentTag) {
+                                                let tagData = common[currentTag];
+                                                //console.log("Common Tag Checked: " + currentTag + ",  Data: " + tagData);
+                                                if (tagData) {
+                                                    if (typeof tagData === "object") {
+                                                        tagData.forEach(function(tag) {
+                                                            tag = tag.replace(/[^a-z0-9]/gi, '_');
+                                                            writeTagLine(`${tagTwo.value}-${tag}`, `${tagOne}-${currentTag}`, filePaths[index], "combination");
+                                                        });
+                                                    } else if (typeof tagData === "string") {
+                                                        tagData = tagData.replace(/[^a-z0-9]/gi, '_');
+                                                        //console.log(`Common tag: ${currentTag}: ${tagData}, combo tag: ${tagOne} : ${tagTwo.value}`);
+                                                        writeTagLine(`${tagTwo.value}-${tagData}`, `${tagOne}-${currentTag}`, filePaths[index], "combination");
+                                                    }
+                                                } 
+                                            });
+                                        }
+                                    }
+                                });
+                                
+                            });
+                            
+                        }
+                    });
+                }
+            }
+            
         }
         
 

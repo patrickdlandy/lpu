@@ -139,3 +139,159 @@ I'd like to start with using these tags from common:
 I'd like to start with using these tags from vorbis:
 - 'SOURCE COLLECTION'
 
+Here is a sample of an mp3 result.
+
+```json
+{
+  format: {
+    tagTypes: [ 'ID3v2.4' ],
+    trackInfo: [],
+    lossless: false,
+    container: 'MPEG',
+    codec: 'MPEG 1 Layer 3',
+    sampleRate: 44100,
+    numberOfChannels: 2,
+    bitrate: 128000,
+    tool: 'LAME 3.97UU',
+    codecProfile: 'CBR',
+    numberOfSamples: 15743232,
+    duration: 356.98938775510203
+  },
+  native: {
+    'ID3v2.4': [
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object]
+    ]
+  },
+  quality: {
+    warnings: [
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      ... 262 more items
+    ]
+  },
+  common: {
+    track: { no: null, of: null },
+    disk: { no: null, of: null },
+    movementIndex: {},
+    rating: [ [Object] ],
+    replaygain_album_gain: { dB: -7.68, ratio: 0.17060823890031235 },
+    replaygain_album_peak: { dB: 1.310602017456501, ratio: 1.35226 },
+    replaygain_track_gain: { dB: -4.1, ratio: 0.3890451449942806 },
+    replaygain_track_peak: { dB: -0.18147429521166128, ratio: 0.959075 },
+    title: 'Do It Again',
+    artists: [ 'Steely Dan' ],
+    artist: 'Steely Dan',
+    comment: [ 'Probably Youtube' ],
+    encodedby: 'Lavf52.31.0'
+  }
+}
+
+```
+
+native
+
+
+```json
+{
+  'ID3v2.4': [
+    { id: 'TXXX:CUSTOM TAG TEST', value: 'Hi' },
+    { id: 'TXXX:replaygain_album_gain', value: '-7.68 dB' },
+    { id: 'TXXX:replaygain_album_peak', value: '1.352260' },
+    { id: 'TXXX:replaygain_track_gain', value: '-4.10 dB' },
+    { id: 'TXXX:replaygain_track_peak', value: '0.959075' },
+    { id: 'POPM', value: [Object] },
+    { id: 'TXXX:PLAYLIST', value: 'main' },
+    { id: 'TIT2', value: 'Do It Again' },
+    { id: 'TPE1', value: 'Steely Dan' },
+    { id: 'COMM', value: [Object] },
+    { id: 'TENC', value: 'Lavf52.31.0' }
+  ]
+}
+
+```
+GRADE seems to work but RATING does not. SMH.
+
+Vorbis:
+
+```json
+{
+  vorbis: [
+    { id: 'ARTIST', value: '2Pac' },
+    { id: 'TITLE', value: 'Keep Ya Head Up' },
+    { id: 'ALBUM', value: 'Greatest Hits' },
+    { id: 'DATE', value: '1998' },
+    { id: 'GENRE', value: 'Rap' },
+    { id: 'GENRE', value: 'Hip Hop' },
+    { id: 'ALBUMARTIST', value: '2Pac' },
+    { id: 'TRACKNUMBER', value: '1' },
+    { id: 'TRACKTOTAL', value: '12' },
+    { id: 'DISCNUMBER', value: '1' },
+    { id: 'COMMENT', value: 'www.RapMusicGuide.com\n' },
+    { id: 'PLAYLIST', value: 'main' },
+    { id: 'RATING', value: '5' },
+    { id: 'SOURCE COLLECTION', value: '100' },
+    { id: 'GRADE', value: 'A' },
+    { id: 'REPLAYGAIN_ALBUM_GAIN', value: '-8.54 dB' },
+    { id: 'REPLAYGAIN_ALBUM_PEAK', value: '0.999969' },
+    { id: 'REPLAYGAIN_TRACK_GAIN', value: '-7.28 dB' },
+    { id: 'REPLAYGAIN_TRACK_PEAK', value: '0.999969' },
+    { id: 'METADATA_BLOCK_PICTURE', value: [Object] }
+  ]
+}
+
+```
+
+ID3:
+
+```json
+{
+  'ID3v2.3': [
+    { id: 'TRCK', value: '7' },
+    { id: 'TXXX:GRADE', value: 'A' },
+    { id: 'TXXX:replaygain_album_gain', value: '-7.79 dB' },
+    { id: 'TXXX:replaygain_album_peak', value: '1.139966' },
+    { id: 'TXXX:replaygain_track_gain', value: '-7.36 dB' },
+    { id: 'TXXX:replaygain_track_peak', value: '1.139966' },
+    { id: 'POPM', value: [Object] },
+    { id: 'TXXX:PLAYLIST', value: 'main' },
+    { id: 'TPE2', value: 'Snarky Puppy' },
+    { id: 'TALB', value: 'Immigrance' },
+    { id: 'TPE1', value: 'Snarky Puppy' },
+    { id: 'COMM:iTunPGAP', value: [Object] },
+    { id: 'COMM:iTunNORM', value: [Object] },
+    { id: 'COMM:iTunSMPB', value: [Object] },
+    { id: 'TENC', value: 'iTunes 12.8.0.150' },
+    { id: 'TIT2', value: 'Bad Kids to the Back' },
+    { id: 'TYER', value: '2019' },
+    { id: 'APIC', value: [Object] }
+  ],
+  ID3v1: [
+    { id: 'title', value: 'Bad Kids to the Back' },
+    { id: 'artist', value: 'Snarky Puppy' },
+    { id: 'album', value: 'Immigrance' },
+    { id: 'track', value: 7 },
+    { id: 'year', value: '2019' }
+  ]
+}
+
+```
+
