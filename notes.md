@@ -295,3 +295,7 @@ ID3:
 
 ```
 
+
+It appears that the common tag pulls data from STYLE automatically.
+
+The GRADE-genre combination is not working for mp3s.

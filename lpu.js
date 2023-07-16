@@ -76,6 +76,9 @@ const writePlaylists = function(val) {
                     if (typeof tagData === "object") {
                         tagData.forEach(function(tag) {
                             tag = tag.replace(/[^a-z0-9]/gi, '_');
+                            // if (currentTag === "genre") {
+                            //     console.log(`Current Tag: ${currentTag}: ${tag}`);
+                            // }
                             writeTagLine(tag, currentTag, filePaths[index], "common");
                             //check for vorbis combination tags
                             combinationvorbistags.forEach((tagOne)=> {
