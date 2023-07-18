@@ -300,4 +300,4 @@ It appears that the common tag pulls data from STYLE automatically.
 
 The GRADE-genre combination is not working for mp3s.
 
-The combination tags are not working for any m4as.
+The combination tags are not working for any m4as. And somehow a bunch of album artist tags got deleted (possibly reverted through a Dropbox Error).
