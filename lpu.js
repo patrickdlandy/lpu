@@ -14,7 +14,7 @@ const musicextensions = [".mp3", ".flac", ".m4a", ".wav"];
 
 const commontags = ["albumartist", "genre", "date"];
 
-const vorbistags = ["SOURCE COLLECTION", "PLAYLIST", "GRADE"];
+const vorbistags = ["SOURCE COLLECTION", "PLAYLIST", "GRADE", "TYPE", "SUBTYPE"];
 
 const combinationvorbistags = ["GRADE"];
 
