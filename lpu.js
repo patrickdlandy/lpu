@@ -14,7 +14,7 @@ const musicextensions = [".mp3", ".flac", ".m4a", ".wav"];
 
 const commontags = ["albumartist", "genre", "date"];
 
-const vorbistags = ["SOURCE COLLECTION", "STYLE", "PLAYLIST", "GRADE"];
+const vorbistags = ["SOURCE COLLECTION", "PLAYLIST", "GRADE"];
 
 const combinationvorbistags = ["GRADE"];
 
@@ -60,17 +60,19 @@ function buildMetadataObject(filePath) {
 }
 
 const writePlaylists = function(val) {
-    //console.log(val);
+    // console.log(val);
     for (let index = 0; index < val.length; index++) {
-        // console.log(val[index]);
+        // if (val[index].value.native) {
+        //     console.log(val[index].value.native);
+        // };
         // console.log(filePaths[index]);
         writeLine("../" + filePaths[index], "00_playlists/main.m3u8");
         //common tags
         //console.log(val[index].value.native);
         if (val[index].status === 'fulfilled' && val[index].value && val[index].value.common) {
             let common = val[index].value.common;
+            // console.log(common);
             commontags.forEach(function(currentTag) {
-                //console.log(common["albumartist"]);
                 let tagData = common[currentTag];
                 if (tagData) {
                     if (typeof tagData === "object") {
@@ -135,7 +137,7 @@ const writePlaylists = function(val) {
                 vorbis.forEach(function(tag) {
                     if (vorbistags.includes(tag.id)) {
                         // console.log(tag.id + " " + tag.value);
-                        // console.log(vorbis);
+                        //console.log(vorbis);
                         //clean tags
                         let cleanTag = tag.value.replace(/[^a-z0-9]/gi, '_');
                         writeTagLine(cleanTag, tag.id, filePaths[index], "vorbis");
@@ -173,6 +175,61 @@ const writePlaylists = function(val) {
                             combinationvorbistags.forEach((tagOne)=> {
                                 idthree.forEach(function(tagTwo) {
                                     let cleanedTagTwoID = tagTwo.id.replace('TXXX:','');
+                                    //console.log("combo tag: " + tagOne + ", cleaned ID3 Tag ID: " + cleanedTagTwoID);
+                                    if (cleanedTagTwoID === tagOne && tagOne != cleanedTagID) {
+                                        //console.log("writing tag");
+                                        writeTagLine(`${tagTwo.value}-${cleanTag}`, `${cleanedTagTwoID}-${cleanedTagID}`, filePaths[index], "combination");
+                                        //common tags
+                                        if (val[index].value.common) {
+                                            let common = val[index].value.common;
+                                            commontags.forEach(function(currentTag) {
+                                                let tagData = common[currentTag];
+                                                //console.log("Common Tag Checked: " + currentTag + ",  Data: " + tagData);
+                                                if (tagData) {
+                                                    if (typeof tagData === "object") {
+                                                        tagData.forEach(function(tag) {
+                                                            tag = tag.replace(/[^a-z0-9]/gi, '_');
+                                                            writeTagLine(`${tagTwo.value}-${tag}`, `${tagOne}-${currentTag}`, filePaths[index], "combination");
+                                                        });
+                                                    } else if (typeof tagData === "string") {
+                                                        tagData = tagData.replace(/[^a-z0-9]/gi, '_');
+                                                        //console.log(`Common tag: ${currentTag}: ${tagData}, combo tag: ${tagOne} : ${tagTwo.value}`);
+                                                        writeTagLine(`${tagTwo.value}-${tagData}`, `${tagOne}-${currentTag}`, filePaths[index], "combination");
+                                                    }
+                                                } 
+                                            });
+                                        }
+                                    }
+                                });
+                                
+                            });
+                            
+                        }
+                    });
+                }
+            }
+            
+        }
+        //check for vorbis tags that got stored in iTunes metadata
+        if (val[index].status === 'fulfilled' && val[index].value.native) {
+            if (val[index].value.native['iTunes']) {
+                let iTunes = [];
+                if (val[index].value.native['iTunes']) {
+                    iTunes = val[index].value.native['iTunes'];
+                } 
+                if (iTunes.length > 0) {
+                    iTunes.forEach(function(tag) {
+                        let cleanedTagID = tag.id.replace('----:com.apple.iTunes:','');
+                        if (vorbistags.includes(cleanedTagID)) {
+                            // console.log(tag.id + " " + tag.value);
+                            // console.log(vorbis);
+                            //clean tags
+                            let cleanTag = tag.value.replace(/[^a-z0-9]/gi, '_');
+                            writeTagLine(cleanTag, cleanedTagID, filePaths[index], "vorbis");
+                            //combination tags
+                            combinationvorbistags.forEach((tagOne)=> {
+                                iTunes.forEach(function(tagTwo) {
+                                    let cleanedTagTwoID = tagTwo.id.replace('----:com.apple.iTunes:','');
                                     //console.log("combo tag: " + tagOne + ", cleaned ID3 Tag ID: " + cleanedTagTwoID);
                                     if (cleanedTagTwoID === tagOne && tagOne != cleanedTagID) {
                                         //console.log("writing tag");

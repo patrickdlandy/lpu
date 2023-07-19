@@ -301,3 +301,77 @@ It appears that the common tag pulls data from STYLE automatically.
 The GRADE-genre combination is not working for mp3s.
 
 The combination tags are not working for any m4as. And somehow a bunch of album artist tags got deleted (possibly reverted through a Dropbox Error).
+
+What does an m4a from itunes look like?
+
+```json
+{
+  iTunes: [
+    { id: 'trkn', value: '1/10' },
+    { id: 'disk', value: '1/1' },
+    { id: 'cpil', value: 0 },
+    { id: '©day', value: '2018' },
+    { id: 'sonm', value: 'Tatlı Diller Güler Yüze' },
+    { id: '©nam', value: 'Tatlı Diller Güler Yüze' },
+    {
+      id: '----:com.apple.iTunes:replaygain_track_peak',
+      value: '1.054197'
+    },
+    {
+      id: '----:com.apple.iTunes:replaygain_track_gain',
+      value: '-9.83 dB'
+    },
+    {
+      id: '----:com.apple.iTunes:replaygain_album_peak',
+      value: '1.112932'
+    },
+    {
+      id: '----:com.apple.iTunes:replaygain_album_gain',
+      value: '-9.66 dB'
+    },
+    { id: 'purd', value: '2020-02-10 23:48:09' },
+    { id: '----:com.apple.iTunes:PLAYLIST', value: 'Turkish Music' },
+    {
+      id: '----:com.apple.iTunes:iTunSMPB',
+      value: ' 00000000 00000840 000000AC 00000000006EE314 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000'
+    },
+    {
+      id: '----:com.apple.iTunes:iTunNORM',
+      value: ' 000011C7 00000E9D 000079E3 00008C81 00017B80 00017B80 00007E96 00007E9E 0000E3D9 00012BF4'
+    },
+    { id: '----:com.apple.iTunes:GRADE', value: 'A' },
+    { id: '----:com.apple.iTunes:GENRE', value: 'Anatolian Rock' },
+    { id: '----:com.apple.iTunes:GENRE', value: 'Turkish Folk' },
+    { id: '----:com.apple.iTunes:GENRE', value: 'Psychedelic Rock' },
+    { id: '----:com.apple.iTunes:GENRE', value: 'World' },
+    { id: '©wrt', value: 'Neşet Ertaş' },
+    { id: '©cmt', value: 'itunes date 2017-12-22T12:00:00Z' },
+    { id: 'soar', value: 'Altın Gün' },
+    { id: '©ART', value: 'Altın Gün' },
+    { id: 'soal', value: 'On' },
+    { id: 'aART', value: 'Altın Gün' },
+    { id: '©alb', value: 'On' },
+    { id: 'covr', value: [Object] },
+    { id: 'pgap', value: 1 },
+    { id: 'cnID', value: 1355691837 },
+    { id: 'atID', value: 1230077237 },
+    { id: 'cmID', value: 256821735 },
+    { id: 'plID', value: 1355691432 },
+    { id: 'geID', value: 20 },
+    { id: 'stik', value: 1 }
+  ]
+}
+
+```
+
+
+OK. So we have keys and values like 
+`{ id: '----:com.apple.iTunes:PLAYLIST', value: 'Turkish Music' },`
+
+stored in the iTunes object.
+
+I might be able to add steps to check for vorbis tags in m4as just like checking for them in mp3s.
+
+Fixed the custom tags... but woof, looks like there is no "genre" key in iTunes tags??
+
+Today is not the day to fix genre. But feeling pretty good about everything I care about except genre.
