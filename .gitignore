@@ -11,6 +11,9 @@
 *.accurip
 *.txt
 
+*.pdf
+*.accurip
+
 *.m3u8
 
 node_modules/
